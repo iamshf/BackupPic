@@ -221,3 +221,10 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# Pytest
+test.py
+config.ini
+*.sqlite3
+*.sqlite
