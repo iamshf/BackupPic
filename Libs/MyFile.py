@@ -1,4 +1,6 @@
 import hashlib, os, datetime,time
+
+
 def file_hash(file_path, hash_method='sha256'):
     if not os.path.isfile(file_path):
         raise FileNotFoundError(f"{file_path} 不存在")

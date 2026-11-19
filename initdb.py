@@ -1,5 +1,5 @@
 
-import MySqlite;
+import Libs.MySqlite as MySqlite;
 
 def  init_db():
     create_table_sql = (

@@ -1,4 +1,4 @@
-from MySqlite import MySqlite;
+from Libs.MySqlite import MySqlite;
 
 mysqlite = MySqlite("./a.sqlite")
 
