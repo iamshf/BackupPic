@@ -18,3 +18,10 @@ def  init_db():
 
     with MySqlite.MySqlite() as db:
         db.execute(create_table_sql)
+
+        sql = r"select name from sqlite_master where type='table' and name='file_info';"
+        result = db.query_one(sql)
+        if(result is None):
+            print("初始化失败")
+        else:
+            print("初始化成功")
