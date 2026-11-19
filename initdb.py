@@ -1,16 +1,20 @@
 
+import MySqlite;
 
 def  init_db():
     create_table_sql = (
         "CREATE TABLE IF NOT EXISTS file_info ("
             "id INTEGER PRIMARY KEY,"
             "filename TEXT not null,"
-            "filehash CHAR(64) not null,"
+            "filehash CHAR(64) not null unique,"
             "filesize INTEGER not null default 0,"
             "mimetype TEXT not null default 'application/octet-stream',"
             "gmt_createtime INTEGER not null,"
-            "filepath text not null"
-        ");"
+            "filepath text not null,"
+            "extension text not null"
+        ")"
     )
 
-    create_idx_sql = "CREATE INDEX IF NOT EXISTS idx_file_info_hash ON file_info(filehash);"
+
+    with MySqlite.MySqlite() as db:
+        db.execute(create_table_sql)
