@@ -1,3 +1,23 @@
-[database]
-dbname = path
+[scan]
+source_dir = xxx
+target_root = xxx
+batch_size = 300
 
+[db]
+db_url = sqlite:///file.db
+
+[log]
+log_file = logs/archive.log
+log_level = INFO
+
+[storage]
+# driver = local
+# driver = baidupcs
+driver = multi
+multi_backend_list = local,baidupcs
+multi_strict_mode = false
+
+pcs_app_id = xxx
+pcs_app_secret = xxx
+pcs_refresh_token = xxx
+pcs_root_dir = /archive

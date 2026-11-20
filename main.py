@@ -1,30 +1,13 @@
-from Libs.MySqlite import MySqlite;
+import click
+from cli import archive_cmd, check_cmd, retry_failed_cmd
 
-mysqlite = MySqlite("./a.sqlite")
+@click.group()
+def cli():
+    pass
 
-mysqlite.openConn()
+cli.add_command(archive_cmd)
+cli.add_command(check_cmd)
+cli.add_command(retry_failed_cmd)
 
-
-
-create_table_sql = (
-    "CREATE TABLE IF NOT EXISTS file_info ("
-        "id INTEGER PRIMARY KEY,"
-        "filename TEXT not null,"
-        "filehash CHAR(64) not null,"
-        "filesize INTEGER not null,"
-        "mimetype TEXT not null,"
-        "gmt_createtime INTEGER not null"
-    ");"
-)
-
-create_idx_sql = "CREATE INDEX IF NOT EXISTS idx_file_info_hash ON file_info(filehash);"
-
-print(sql, type(sql))
-
-
-
-print(mysqlite.execute(sql))
-
-
-
-mysqlite.dispose()
+if __name__ == "__main__":
+    cli()

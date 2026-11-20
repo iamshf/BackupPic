@@ -31,11 +31,11 @@ def scan(path):
 
 # 使用示例
 
-file = r'd:/software/Clash.Verge_2.5.1_x64-setup.exe'
+# file = r'd:/software/Clash.Verge_2.5.1_x64-setup.exe'
 
 #print(file_hash(file, 'md5'))
 #print(file_hash(file))
 
-print(file_time(file))
+# print(file_time(file))
 
-scan("d:/software")
+# scan("d:/software")
