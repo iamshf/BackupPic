@@ -1,3 +1,3 @@
-from cli.archive_cmd import archive_cmd
-from cli.check_cmd import check_cmd
-from cli.retry_failed_cmd import retry_failed_cmd
+from .scan_cmd import scan_cli
+from .check_cmd import check_cli
+from .repair_cmd import repair_cli

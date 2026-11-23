@@ -1,23 +1,24 @@
-[scan]
-source_dir = xxx
-target_root = xxx
-batch_size = 300
-
 [db]
-db_url = sqlite:///file.db
+db_path = backup.db
 
 [log]
-log_file = logs/archive.log
+log_dir = logs
 log_level = INFO
 
+[common]
+source_dir = D:/source_files
+local_target_dir = D:/backup_files
+scan_recursive = true
+
 [storage]
-# driver = local
-# driver = baidupcs
-driver = multi
+driver = multi | local | baidupcs
 multi_backend_list = local,baidupcs
 multi_strict_mode = false
 
-pcs_app_id = xxx
-pcs_app_secret = xxx
-pcs_refresh_token = xxx
-pcs_root_dir = /archive
+[baidu_pan]
+client_id = 你的client_id
+client_secret = 你的client_secret
+upload_retry_times = 3
+chunk_size = 4194304
+refresh_threshold_hour = 24
+remote_root = /file_backup

@@ -1,18 +1,16 @@
+# cli/check_cmd.py
 import click
-from src.common.config_loader import load_config
-from src.common.logger_setup import init_logger
-from src.db.base import get_engine, get_session_factory, DbSessionCtx
-from src.services.check_service import CheckService
-from src.services.storage import get_storage_driver
+from sqlalchemy.orm import Session
+from core.db import get_db
+from repositories.file_repo import FileRecord
 
-@click.command(name="check")
-def check_cmd():
-    cfg = load_config()
-    logger = init_logger(cfg["log_file"], cfg["log_level"])
-    engine = get_engine(cfg["db_url"])
-    session_factory = get_session_factory(engine)
-    storage = get_storage_driver(cfg["storage_driver"], cfg["target_root"], cfg)
-    svc = CheckService(storage)
-
-    with DbSessionCtx(session_factory) as sess:
-        svc.run_check(sess)
+@click.command("check")
+def check_cli():
+    """一致性检查，统计失败数量"""
+    db: Session = next(get_db())
+    total = db.query(FileRecord).count()
+    local_fail = db.query(FileRecord).filter(FileRecord.local_saved == 0).count()
+    baidu_fail = db.query(FileRecord).filter(FileRecord.baidu_saved == 0).count()
+    click.echo(f"总入库记录：{total}")
+    click.echo(f"本地备份失败：{local_fail}")
+    click.echo(f"百度网盘备份失败：{baidu_fail}")
