@@ -5,7 +5,7 @@ from core.logger import logger
 from core.settings import settings
 from repositories.file_repo import FileRecordRepo, FileRecord
 from storages.storage_factory import StorageFactory, MultiStorage
-from utils import calc_sha256, get_file_create_time, get_file_size, get_ext_name, guess_mimetype
+from utils import calc_file_hash, get_file_create_time, get_file_size, get_ext_name, guess_mimetype
 
 class BackupService:
     def __init__(self, db: Session):
@@ -22,7 +22,7 @@ class BackupService:
             for fn in files:
                 full_path = str(Path(root) / fn)
                 exist_rec = FileRecordRepo.get_by_original_path(self.db, full_path)
-                file_hash = calc_sha256(full_path)
+                file_hash = calc_file_hash(full_path)
                 file_create_dt = get_file_create_time(full_path)
                 file_size = get_file_size(full_path)
                 ext_name = get_ext_name(full_path)
