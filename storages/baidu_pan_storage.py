@@ -226,6 +226,30 @@ class BaiduPanStorage(BaseStorage):
         return False
 
     @retry(max_retry=3)
+    def _get_remote_file_md5(self, access_token: str, remote_path: str) -> str | None:
+        parent_raw, file_name = self.split_remote_path(remote_path)
+        parent_encoded = self._encode_remote_path(parent_raw)
+        url = "https://pan.baidu.com/rest/2.0/xpan/file"
+        params = {
+            "method": "list",
+            "access_token": access_token,
+            "path": parent_encoded,
+            "recursion": 0
+        }
+        if self.DEBUG:
+            logger.debug(f"[list DEBUG] url={url}, params={params}")
+        r = requests.get(url, params=params, headers=self.HEADERS, timeout=20)
+        j = self.safe_json(r)
+        if j.get("errno") != 0:
+            raise StorageError(f"list接口查询失败 {j}")
+        for item in j.get("list", []):
+            if item["isdir"] == 0 and item["server_filename"] == file_name:
+                # 百度pcs里的md5字段名是 md5
+                return item.get("md5")
+        return None
+
+
+    @retry(max_retry=3)
     def _precreate(self, access_token: str, remote_path: str, file_size: int, block_list: list):
         url = "https://pan.baidu.com/rest/2.0/xpan/file"
         params = {"method": "precreate", "access_token": access_token}
@@ -241,6 +265,13 @@ class BaiduPanStorage(BaseStorage):
             logger.debug(f"[precreate DEBUG] url={url}, params={params}, data={data}")
         r = requests.post(url, params=params, data=data, headers=self.HEADERS, timeout=20)
         j = self.safe_json(r)
+
+        if j.get("errno") == -8:
+            logger.info(f"precreate返回文件已存在 {remote_path}")
+            # 这里可以再次调用 _get_remote_file_md5 二次校验
+            remote_md5 = self._get_remote_file_md5(access_token, remote_path)
+            return None
+
         if j.get("errno") != 0:
             raise StorageError(f"precreate err {j}")
         return j["uploadid"]
@@ -297,10 +328,16 @@ class BaiduPanStorage(BaseStorage):
         parent_dir, _ = self.split_remote_path(remote_path)
         self._mkdir(access_token, parent_dir)
 
-        exists = self._remote_file_exists(access_token, remote_path)
-        if exists:
-            logger.info(f"百度网盘已存在，跳过上传：{remote_path}")
-            return True
+        remote_md5 = self._get_remote_file_md5(access_token, remote_path)
+        if remote_md5 is not None:
+            if remote_md5 == file_record.filehash:
+                logger.info(f"百度网盘校验md5一致，跳过上传：{remote_path} md5={remote_md5}")
+                return True
+            else:
+                # 同名、md5不一致：冲突！这里策略：告警，不覆盖，直接返回
+                logger.warning(f"【冲突警告】路径已存在但是md5不一致！path={remote_path} 云端md5={remote_md5} 入库md5={file_record.filehash}")
+                return False
+
 
         local_fp = Path(local_file_path)
         file_size = local_fp.stat().st_size

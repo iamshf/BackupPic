@@ -23,6 +23,7 @@ class BackupService:
                 full_path = str(Path(root) / fn)
                 exist_rec = FileRecordRepo.get_by_original_path(self.db, full_path)
                 file_hash = calc_file_hash(full_path)
+                file_md5 = calc_file_hash(full_path, "md5")
                 file_create_dt = get_file_create_time(full_path)
                 file_size = get_file_size(full_path)
                 ext_name = get_ext_name(full_path)
@@ -40,6 +41,7 @@ class BackupService:
                     record = FileRecord(
                         original_filepath=full_path,
                         file_hash=file_hash,
+                        file_md5=file_md5,
                         filename=fn,
                         ext_name=ext_name,
                         mimetype=mimetype,
